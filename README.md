@@ -15,9 +15,9 @@
 
 ## 📱 Ảnh chụp màn hình
 
-| Trang chủ (Sáng)                      | Trang chủ (Tối)                      | Thêm giao dịch                                  |
-| ------------------------------------- | ------------------------------------ | ----------------------------------------------- |
-| ./src/docs/screenshots/home-light.jpg | ./src/docs/screenshots/home-dark.jpg | ./src/docs/screenshots/add-transaction-dark.jpg |
+| Trang chủ (Sáng)                                         | Trang chủ (Tối)                                        | Thêm giao dịch                                                     |
+| -------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
+| ![Trang chủ sáng](./src/docs/screenshots/home-light.jpg) | ![Trang chủ tối](./src/docs/screenshots/home-dark.jpg) | ![Thêm giao dịch](./src/docs/screenshots/add-transaction-dark.jpg) |
 
 ---
 
@@ -58,8 +58,8 @@
 ### Cài đặt
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/NeyurtNguyen/finance_app.git
+cd finance_app
 npm install
 ```
 
