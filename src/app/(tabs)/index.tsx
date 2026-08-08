@@ -1,12 +1,12 @@
+import { BalanceCard } from "@/components/BalanceCard";
+import { FilterValue, SegmentedControl } from "@/components/SegmentedControl";
+import { TransactionRow } from "@/components/TransactionRow";
+import { computeBalance, useFinanceStore } from "@/store/useFinanceStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BalanceCard } from "../components/BalanceCard";
-import { FilterValue, SegmentedControl } from "../components/SegmentedControl";
-import { TransactionRow } from "../components/TransactionRow";
-import { computeBalance, useFinanceStore } from "../store/useFinanceStore";
 
 export default function HomeScreen() {
   const transactions = useFinanceStore((s) => s.transactions);
@@ -75,7 +75,7 @@ export default function HomeScreen() {
 
       <Pressable
         onPress={() => router.push("/add-transaction")}
-        className="absolute bottom-8 right-5 h-14 w-14 items-center justify-center rounded-full bg-gold shadow-lg"
+        className="absolute bottom-6 left-1/2 -ml-7 h-14 w-14 items-center justify-center rounded-full bg-gold shadow-lg"
       >
         <Ionicons name="add" size={26} color="#412402" />
       </Pressable>

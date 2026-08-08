@@ -8,6 +8,11 @@ interface FinanceState {
   hasHydrated: boolean;
   addTransaction: (t: Omit<Transaction, "id" | "date">) => void;
   removeTransaction: (id: string) => void;
+  resetAll: () => void;
+  importTransactions: (
+    imported: Transaction[],
+    mode: "merge" | "replace",
+  ) => void;
   setHasHydrated: (v: boolean) => void;
 }
 
@@ -27,6 +32,17 @@ export const useFinanceStore = create<FinanceState>()(
         set((state) => ({
           transactions: state.transactions.filter((tx) => tx.id !== id),
         })),
+      resetAll: () => set({ transactions: [] }),
+      importTransactions: (imported, mode) =>
+        set((state) => {
+          if (mode === "replace") {
+            return { transactions: imported };
+          }
+          // merge: bỏ qua giao dịch trùng id đã có sẵn
+          const existingIds = new Set(state.transactions.map((t) => t.id));
+          const newOnes = imported.filter((t) => !existingIds.has(t.id));
+          return { transactions: [...newOnes, ...state.transactions] };
+        }),
       setHasHydrated: (v) => set({ hasHydrated: v }),
     }),
     {
@@ -35,20 +51,27 @@ export const useFinanceStore = create<FinanceState>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
-    }
-  )
+    },
+  ),
 );
 
 // Derived helpers — call these with the transactions array from the store
 // so components only re-render when the relevant slice actually changes.
-export function computeBalance(transactions: Transaction[], source?: MoneySource) {
+export function computeBalance(
+  transactions: Transaction[],
+  source?: MoneySource,
+) {
   return transactions
     .filter((t) => !source || t.source === source)
     .reduce((sum, t) => sum + (t.type === "in" ? t.amount : -t.amount), 0);
 }
 
 export function computeTotals(transactions: Transaction[]) {
-  const income = transactions.filter((t) => t.type === "in").reduce((s, t) => s + t.amount, 0);
-  const expense = transactions.filter((t) => t.type === "out").reduce((s, t) => s + t.amount, 0);
+  const income = transactions
+    .filter((t) => t.type === "in")
+    .reduce((s, t) => s + t.amount, 0);
+  const expense = transactions
+    .filter((t) => t.type === "out")
+    .reduce((s, t) => s + t.amount, 0);
   return { income, expense };
 }

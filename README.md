@@ -30,6 +30,7 @@
 - 🌗 **Dark mode tự động** theo cài đặt hệ thống, không cần bật/tắt thủ công
 - 💾 **Lưu offline** — dữ liệu persist qua Zustand + AsyncStorage, mất mạng vẫn dùng được
 - 🇻🇳 **Bản địa hoá đầy đủ** — giao diện tiếng Việt, định dạng tiền tệ VNĐ
+- 📤 **Xuất / nhập dữ liệu** — xuất giao dịch ra file `.json`, nhập lại có so sánh trùng lặp: tự bỏ qua giao dịch giống hệt, hỏi rõ khi có xung đột (trùng ID khác nội dung), không bao giờ âm thầm ghi đè dữ liệu hiện có
 
 ---
 
@@ -45,6 +46,7 @@
 | Icon             | `@expo/vector-icons` (Ionicons)                                             |
 | Font             | Fredoka (tiêu đề) · Be Vietnam Pro (nội dung, hỗ trợ tiếng Việt)            |
 | Ngôn ngữ         | TypeScript (strict)                                                         |
+| Xuất/nhập file   | `expo-file-system` · `expo-sharing` · `expo-document-picker`                |
 
 ---
 
@@ -104,6 +106,7 @@ src/
 - [ ] Màn **Thống kê** — biểu đồ chi tiêu theo danh mục / theo tháng
 - [ ] Chỉnh sửa giao dịch đã tạo (hiện chỉ thêm mới hoặc xoá)
 - [ ] Đặt hạn mức chi tiêu (budget) theo danh mục
+- [x] Xuất/nhập dữ liệu dạng JSON
 - [ ] Xuất báo cáo thu chi (CSV/PDF)
 - [ ] Cho phép người dùng tự chọn theme thay vì chỉ theo hệ thống
 
