@@ -8,6 +8,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Alert, Pressable, Text, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Transaction } from "@/types/finance";
 
 function SettingsRow({
   icon,
@@ -65,6 +67,10 @@ export default function SettingsScreen() {
     setIsExporting(true);
     try {
       await exportTransactionsToFile(transactions);
+      // Alert.alert(
+      //   "Xuất dữ liệu thành công",
+      //   `Đã xuất ${transactions.length} giao dịch ra file.`,
+      // );
     } catch (err) {
       Alert.alert(
         "Xuất dữ liệu thất bại",
@@ -75,24 +81,43 @@ export default function SettingsScreen() {
     }
   }
 
+  function applyImport(
+    sourceTransactions: Transaction[],
+    mode: "merge" | "replace",
+  ) {
+    try {
+      importTransactions(sourceTransactions, mode);
+      Alert.alert(
+        "Nhập dữ liệu thành công",
+        `Đã ${mode === "replace" ? "thay thế bằng" : "thêm"} ${sourceTransactions.length} giao dịch.`,
+        [{ text: "OK", onPress: () => router.push("/") }], // "/" = tab Trang chủ
+      );
+    } catch (err) {
+      // Thất bại → hiện lỗi, KHÔNG điều hướng, ở lại Settings
+      Alert.alert(
+        "Nhập dữ liệu thất bại",
+        err instanceof Error ? err.message : "Đã có lỗi xảy ra.",
+      );
+    }
+  }
+
   async function handleImport() {
     setIsImporting(true);
     try {
       const imported = await pickAndParseImportFile();
-      if (!imported) return; // người dùng huỷ chọn file
+      if (!imported) return;
 
       const { newOnes, identical, conflicting } = diffTransactions(
         transactions,
         imported,
       );
 
-      // Trường hợp toàn bộ file giống hệt app hiện tại — không có gì để làm
       if (newOnes.length === 0 && conflicting.length === 0) {
         Alert.alert(
           "Không có gì thay đổi",
           `Cả ${identical.length} giao dịch trong file đều đã có sẵn và giống hệt dữ liệu hiện tại.`,
         );
-        return;
+        return; // không đổi gì → ở lại Settings, không cần điều hướng
       }
 
       const summary = [
@@ -107,17 +132,15 @@ export default function SettingsScreen() {
 
       Alert.alert("Nhập dữ liệu", summary, [
         { text: "Huỷ", style: "cancel" },
-        {
-          text: "Chỉ thêm mới",
-          onPress: () => importTransactions(newOnes, "merge"),
-        },
+        { text: "Chỉ thêm mới", onPress: () => applyImport(newOnes, "merge") },
         {
           text: "Thay thế hết",
           style: "destructive",
-          onPress: () => importTransactions(imported, "replace"),
+          onPress: () => applyImport(imported, "replace"),
         },
       ]);
     } catch (err) {
+      // Đọc/parse file thất bại → hiện lỗi, ở lại Settings
       Alert.alert(
         "Nhập dữ liệu thất bại",
         err instanceof Error ? err.message : "Đã có lỗi xảy ra.",
@@ -133,7 +156,18 @@ export default function SettingsScreen() {
       `${transactionCount} giao dịch sẽ bị xoá vĩnh viễn khỏi máy. Không thể hoàn tác.`,
       [
         { text: "Huỷ", style: "cancel" },
-        { text: "Xoá hết", style: "destructive", onPress: resetAll },
+        {
+          text: "Xoá hết",
+          style: "destructive",
+          onPress: () => {
+            const countBeforeReset = transactionCount;
+            resetAll();
+            Alert.alert(
+              "Đã xoá dữ liệu",
+              `Đã xoá ${countBeforeReset} giao dịch khỏi máy.`,
+            );
+          },
+        },
       ],
     );
   }
