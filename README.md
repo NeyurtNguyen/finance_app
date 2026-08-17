@@ -15,9 +15,13 @@
 
 ## 📱 Ảnh chụp màn hình
 
-| Trang chủ (Sáng)                                         | Trang chủ (Tối)                                        | Thêm giao dịch                                                     |
-| -------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
-| ![Trang chủ sáng](./src/docs/screenshots/home-light.jpg) | ![Trang chủ tối](./src/docs/screenshots/home-dark.jpg) | ![Thêm giao dịch](./src/docs/screenshots/add-transaction-dark.jpg) |
+| Trang chủ (Sáng)                                         | Trang chủ (Tối)                                        | Thêm giao dịch                                                |
+| -------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| ![Trang chủ sáng](./src/docs/screenshots/home-light.jpg) | ![Trang chủ tối](./src/docs/screenshots/home-dark.jpg) | ![Thêm giao dịch](./src/docs/screenshots/add-transaction.jpg) |
+
+| Thống kê                                      | Ví                                       | Setting                                        |
+| --------------------------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| ![Thống kê](./src/docs/screenshots/stats.jpg) | ![Ví](./src/docs/screenshots/wallet.jpg) | ![Setting](./src/docs/screenshots/setting.jpg) |
 
 ---
 
@@ -103,8 +107,8 @@ src/
 
 ## 🗺️ Roadmap
 
-- [ ] Màn **Thống kê** — biểu đồ chi tiêu theo danh mục / theo tháng
-- [ ] Chỉnh sửa giao dịch đã tạo (hiện chỉ thêm mới hoặc xoá)
+- [x] Màn **Thống kê** — biểu đồ chi tiêu theo danh mục / theo tháng
+- [x] Chỉnh sửa giao dịch đã tạo (đã có chức năng thêm mới, sửa hoặc xoá)
 - [ ] Đặt hạn mức chi tiêu (budget) theo danh mục
 - [x] Xuất/nhập dữ liệu dạng JSON
 - [ ] Xuất báo cáo thu chi (CSV/PDF)
