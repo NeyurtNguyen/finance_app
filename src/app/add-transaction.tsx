@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryPicker } from "../components/CategoryPicker";
@@ -9,8 +9,17 @@ import { useFinanceStore } from "../store/useFinanceStore";
 import { MoneySource, TransactionType } from "../types/finance";
 
 export default function AddTransactionScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const transactions = useFinanceStore((s) => s.transactions);
   const addTransaction = useFinanceStore((s) => s.addTransaction);
+  const updateTransaction = useFinanceStore((s) => s.updateTransaction);
   const isDark = useColorScheme() === "dark";
+
+  const editing = useMemo(
+    () => transactions.find((t) => t.id === id),
+    [transactions, id],
+  );
+  const isEditMode = Boolean(editing);
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -18,6 +27,18 @@ export default function AddTransactionScreen() {
   const [source, setSource] = useState<MoneySource>("cash");
   const [categoryId, setCategoryId] = useState(CATEGORIES[1].id); // default: Ăn uống
   const [customCategoryName, setCustomCategoryName] = useState("");
+
+  // Điền sẵn dữ liệu cũ khi mở ở chế độ sửa
+  useEffect(() => {
+    if (editing) {
+      setName(editing.name);
+      setAmount(String(editing.amount));
+      setType(editing.type);
+      setSource(editing.source);
+      setCategoryId(editing.categoryId);
+      setCustomCategoryName(editing.customCategoryName ?? "");
+    }
+  }, [editing]);
 
   const isOtherCategory = categoryId === "other"; // return true if the selected category is "other"
   const canSave =
@@ -27,7 +48,7 @@ export default function AddTransactionScreen() {
 
   function handleSave() {
     if (!canSave) return;
-    addTransaction({
+    const payload = {
       name: name.trim(),
       amount: Number(amount),
       type,
@@ -36,7 +57,13 @@ export default function AddTransactionScreen() {
       customCategoryName: isOtherCategory
         ? customCategoryName.trim()
         : undefined,
-    });
+    };
+
+    if (isEditMode && editing) {
+      updateTransaction(editing.id, payload);
+    } else {
+      addTransaction(payload);
+    }
     router.back();
   }
 
@@ -51,7 +78,7 @@ export default function AddTransactionScreen() {
           />
         </Pressable>
         <Text className="font-display text-[16px] text-text-primary dark:text-text-primary-dark">
-          Thêm giao dịch
+          {isEditMode ? "Sửa giao dịch" : "Thêm giao dịch"}
         </Text>
         <View className="w-6" />
       </View>
@@ -188,7 +215,7 @@ export default function AddTransactionScreen() {
         <Text
           className={`font-body-medium text-[15px] ${canSave ? "text-gold-fg" : "text-text-secondary dark:text-text-secondary-dark"}`}
         >
-          Lưu giao dịch
+          {isEditMode ? "Cập nhật" : "Lưu giao dịch"}
         </Text>
       </Pressable>
     </SafeAreaView>
