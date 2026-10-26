@@ -9,6 +9,7 @@ interface ExportPayload {
   app: "vi-cua-toi";
   version: number;
   exportedAt: string;
+  exportedAtLocal: string; // thêm dòng này
   transactions: Transaction[];
 }
 
@@ -16,12 +17,18 @@ interface ExportPayload {
 export async function exportTransactionsToFile(
   transactions: Transaction[],
 ): Promise<void> {
+  const now = new Date();
   const payload: ExportPayload = {
-    app: "vi-cua-toi",
-    version: EXPORT_VERSION,
-    exportedAt: new Date().toISOString(),
-    transactions,
-  };
+  app: "vi-cua-toi",
+  version: EXPORT_VERSION,
+  exportedAt: now.toISOString(), // UTC — dùng để máy xử lý, đối chiếu chính xác
+  exportedAtLocal: now.toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    dateStyle: "short",
+    timeStyle: "medium",
+  }), // giờ Việt Nam — chỉ để người đọc file bằng mắt cho tiện
+  transactions,
+};
 
   const fileName = `vi-cua-toi-${new Date().toISOString().slice(0, 10)}.json`;
   const file = new File(Paths.document, fileName);

@@ -35,15 +35,15 @@ function formatMonthLabel(date: Date): string {
   return `Tháng ${date.getMonth() + 1}, ${date.getFullYear()}`;
 }
 
-export function groupTransactions(
-  transactions: Transaction[],
-  mode: GroupMode,
-): TransactionGroup[] {
+export function groupTransactions(transactions: Transaction[], mode: GroupMode): TransactionGroup[] {
   const groups = new Map<string, Transaction[]>();
 
   for (const t of transactions) {
     const date = new Date(t.date);
 
+    // Dùng giờ ĐỊA PHƯƠNG (getFullYear/getMonth/getDate) để nhóm,
+    // KHÔNG dùng toISOString() vì nó luôn trả về UTC — lệch múi giờ VN (+7)
+    // sẽ khiến giao dịch sau ~17h UTC (~0h sáng hôm sau giờ VN) bị nhóm nhầm ngày.
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -58,14 +58,8 @@ export function groupTransactions(
     .sort((a, b) => (a[0] < b[0] ? 1 : -1))
     .map(([key, data]) => {
       const sampleDate = new Date(data[0].date);
-      const label =
-        mode === "day"
-          ? formatDayLabel(sampleDate)
-          : formatMonthLabel(sampleDate);
-      const total = data.reduce(
-        (sum, t) => sum + (t.type === "in" ? t.amount : -t.amount),
-        0,
-      );
+      const label = mode === "day" ? formatDayLabel(sampleDate) : formatMonthLabel(sampleDate);
+      const total = data.reduce((sum, t) => sum + (t.type === "in" ? t.amount : -t.amount), 0);
       return { key, label, data, total };
     });
 }
