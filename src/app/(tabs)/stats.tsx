@@ -23,6 +23,11 @@ export default function StatsScreen() {
     () => transactions.filter((t) => isThisMonth(t.date)),
     [transactions],
   );
+  // It is possible to combine three filters into one. (monthly, expenseTotal, byCategory)
+  // const monthlyExpenses = useMemo(
+  //   () => transactions.filter((t) => t.type === "out" && isThisMonth(t.date)),
+  //   [transactions],
+  // );
   const expenseTotal = useMemo(
     () =>
       monthly.filter((t) => t.type === "out").reduce((s, t) => s + t.amount, 0),
