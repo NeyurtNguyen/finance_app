@@ -7,6 +7,10 @@ interface FinanceState {
   transactions: Transaction[];
   hasHydrated: boolean;
   addTransaction: (t: Omit<Transaction, "id" | "date">) => void;
+  updateTransaction: (
+    id: string,
+    patch: Omit<Transaction, "id" | "date">,
+  ) => void;
   removeTransaction: (id: string) => void;
   resetAll: () => void;
   importTransactions: (
@@ -27,6 +31,12 @@ export const useFinanceStore = create<FinanceState>()(
             { ...t, id: Date.now().toString(), date: new Date().toISOString() },
             ...state.transactions,
           ],
+        })),
+      updateTransaction: (id, patch) =>
+        set((state) => ({
+          transactions: state.transactions.map((tx) =>
+            tx.id === id ? { ...tx, ...patch } : tx,
+          ),
         })),
       removeTransaction: (id) =>
         set((state) => ({

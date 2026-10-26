@@ -5,13 +5,17 @@ import { computeBalance, useFinanceStore } from "@/store/useFinanceStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, SectionList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { GroupModeToggle } from "@/components/GroupModeToggle";
+import { formatVND } from "@/constants/format";
+import { groupTransactions, GroupMode } from "@/utils/groupTransactions";
 
 export default function HomeScreen() {
   const transactions = useFinanceStore((s) => s.transactions);
   const removeTransaction = useFinanceStore((s) => s.removeTransaction);
   const [filter, setFilter] = useState<FilterValue>("all");
+  const [groupMode, setGroupMode] = useState<GroupMode>("day");
 
   const total = useMemo(() => computeBalance(transactions), [transactions]);
   const cash = useMemo(
@@ -29,6 +33,16 @@ export default function HomeScreen() {
         ? transactions
         : transactions.filter((t) => t.type === filter),
     [transactions, filter],
+  );
+
+  const sections = useMemo(
+    () =>
+      groupTransactions(filtered, groupMode).map((g) => ({
+        title: g.label,
+        total: g.total,
+        data: g.data,
+      })),
+    [filtered, groupMode],
   );
 
   return (
@@ -52,17 +66,38 @@ export default function HomeScreen() {
         <Text className="font-body-medium text-[14px] text-text-primary dark:text-text-primary-dark">
           Giao dịch gần đây
         </Text>
+        <GroupModeToggle value={groupMode} onChange={setGroupMode} />
       </View>
 
-      <FlatList
-        data={filtered}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
-        contentContainerClassName="px-5 pb-28 gap-1.5"
+        contentContainerClassName="px-5 pb-28"
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section }) => (
+          <View className="mb-1.5 mt-3 flex-row items-center justify-between bg-cream py-1 dark:bg-cream-dark">
+            <Text className="font-body-medium text-[12px] text-text-secondary dark:text-text-secondary-dark">
+              {section.title}
+            </Text>
+            <Text
+              className={`font-body-medium text-[12px] ${
+                section.total >= 0
+                  ? "text-income dark:text-income-dark"
+                  : "text-expense dark:text-expense-dark"
+              }`}
+            >
+              {section.total >= 0 ? "+" : ""}
+              {formatVND(section.total)}
+            </Text>
+          </View>
+        )}
         renderItem={({ item }) => (
-          <TransactionRow
-            transaction={item}
-            onDelete={() => removeTransaction(item.id)}
-          />
+          <View className="mb-1.5">
+            <TransactionRow
+              transaction={item}
+              onDelete={() => removeTransaction(item.id)}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <View className="items-center py-16">

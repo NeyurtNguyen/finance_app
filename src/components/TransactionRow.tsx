@@ -4,6 +4,7 @@ import { getCategory } from "../constants/categories";
 import { formatVND } from "../constants/format";
 import { CATEGORY_COLORS } from "../constants/theme";
 import { Transaction } from "../types/finance";
+import { router } from "expo-router";
 
 interface Props {
   transaction: Transaction;
@@ -32,11 +33,11 @@ export function TransactionRow({ transaction, onDelete }: Props) {
   }
 
   return (
-    <View className="flex-row items-center gap-3 rounded-2xl border border-black/5 bg-card px-3 py-2.5 dark:border-white/5 dark:bg-card-dark">
-      <View
-        style={{ backgroundColor: chipBg }}
-        className="h-[38px] w-[38px] items-center justify-center rounded-full"
-      >
+    <Pressable
+      onPress={() => router.push(`/add-transaction?id=${transaction.id}`)}
+      className="flex-row items-center gap-3 rounded-2xl border border-black/5 bg-card px-3 py-2.5 dark:border-white/5 dark:bg-card-dark"
+    >
+      <View style={{ backgroundColor: chipBg }} className="h-[38px] w-[38px] items-center justify-center rounded-full">
         <Ionicons name={category.icon} size={18} color={chipFg} />
       </View>
 
@@ -46,11 +47,7 @@ export function TransactionRow({ transaction, onDelete }: Props) {
         </Text>
         <View className="mt-0.5 flex-row items-center gap-1">
           <Ionicons
-            name={
-              transaction.source === "cash"
-                ? "cash-outline"
-                : "business-outline"
-            }
+            name={transaction.source === "cash" ? "cash-outline" : "business-outline"}
             size={11}
             color={secondaryColor}
           />
@@ -62,9 +59,7 @@ export function TransactionRow({ transaction, onDelete }: Props) {
 
       <Text
         className={`font-body-medium text-[13px] ${
-          isIncome
-            ? "text-income dark:text-income-dark"
-            : "text-expense dark:text-expense-dark"
+          isIncome ? "text-income dark:text-income-dark" : "text-expense dark:text-expense-dark"
         }`}
       >
         {isIncome ? "+" : "-"}
@@ -78,6 +73,6 @@ export function TransactionRow({ transaction, onDelete }: Props) {
       >
         <Ionicons name="trash-outline" size={16} color={secondaryColor} />
       </Pressable>
-    </View>
+    </Pressable>
   );
 }

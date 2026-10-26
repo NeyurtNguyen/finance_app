@@ -4,8 +4,17 @@ import { computeBalance, useFinanceStore } from "@/store/useFinanceStore";
 import { MoneySource } from "@/types/finance";
 import { Ionicons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
-import { FlatList, Pressable, Text, View, useColorScheme } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  Text,
+  View,
+  useColorScheme,
+  SectionList,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { GroupModeToggle } from "@/components/GroupModeToggle";
+import { groupTransactions, GroupMode } from "@/utils/groupTransactions";
 
 const WALLETS: {
   value: MoneySource;
@@ -21,6 +30,7 @@ export default function WalletScreen() {
   const transactions = useFinanceStore((s) => s.transactions);
   const removeTransaction = useFinanceStore((s) => s.removeTransaction);
   const [source, setSource] = useState<MoneySource>("cash");
+  const [groupMode, setGroupMode] = useState<GroupMode>("day");
 
   const balance = useMemo(
     () => computeBalance(transactions, source),
@@ -29,6 +39,15 @@ export default function WalletScreen() {
   const list = useMemo(
     () => transactions.filter((t) => t.source === source),
     [transactions, source],
+  );
+  const sections = useMemo(
+    () =>
+      groupTransactions(list, groupMode).map((g) => ({
+        title: g.label,
+        total: g.total,
+        data: g.data,
+      })),
+    [list, groupMode],
   );
 
   return (
@@ -81,19 +100,30 @@ export default function WalletScreen() {
         })}
       </View>
 
-      <Text className="mx-5 mb-2 mt-6 font-body-medium text-[14px] text-text-primary dark:text-text-primary-dark">
-        Giao dịch — {WALLETS.find((w) => w.value === source)?.label}
-      </Text>
+      <View className="mx-5 mb-2 mt-6 flex-row items-center justify-between">
+        <Text className="font-body-medium text-[14px] text-text-primary dark:text-text-primary-dark">
+          Giao dịch — {WALLETS.find((w) => w.value === source)?.label}
+        </Text>
+        <GroupModeToggle value={groupMode} onChange={setGroupMode} />
+      </View>
 
-      <FlatList
-        data={list}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
-        contentContainerClassName="px-5 pb-28 gap-1.5"
+        contentContainerClassName="px-5 pb-28"
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section }) => (
+          <Text className="mb-1.5 mt-3 font-body-medium text-[12px] text-text-secondary dark:text-text-secondary-dark">
+            {section.title}
+          </Text>
+        )}
         renderItem={({ item }) => (
-          <TransactionRow
-            transaction={item}
-            onDelete={() => removeTransaction(item.id)}
-          />
+          <View className="mb-1.5">
+            <TransactionRow
+              transaction={item}
+              onDelete={() => removeTransaction(item.id)}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <View className="items-center py-16">
